@@ -105,7 +105,7 @@ public class Categorys extends Fragment {
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException e) {
                         for(QueryDocumentSnapshot doc: value) {
                             Product p = new Product(
-                                    doc.getString("uid"),
+                                    doc.getId(),
                                     doc.getString("name"),
                                     doc.getString("urlImg"),
                                     doc.getDouble("price"),

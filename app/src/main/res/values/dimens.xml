@@ -9,6 +9,6 @@
     <dimen name="altura_miniatura_comida">250dp</dimen>
     <dimen name="espacio_norma_1">16dp</dimen>
     <dimen name="texto_parrafo">15sp</dimen>
-    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="app_bar_height">250dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 </resources>

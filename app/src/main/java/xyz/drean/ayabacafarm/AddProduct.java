@@ -23,9 +23,13 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import xyz.drean.ayabacafarm.pojo.Product;
@@ -35,6 +39,13 @@ public class AddProduct extends AppCompatActivity {
     int SELECT_PICTURE = 1;
     private CircleImageView img;
     private Uri imgUri;
+
+    private EditText name;
+    private EditText description;
+    private EditText price;
+    private Spinner category;
+
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +68,8 @@ public class AddProduct extends AppCompatActivity {
         menuIcon.setColorFilter(getResources().getColor(R.color.blanco), PorterDuff.Mode.SRC_ATOP);
         actionBar.setHomeAsUpIndicator(menuIcon);
 
+        init();
+
         img = findViewById(R.id.img_add);
         img.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +77,10 @@ public class AddProduct extends AppCompatActivity {
                 openGalery();
             }
         });
+
+        if(getIntent().getStringExtra("name") != null) {
+            edit();
+        }
     }
 
     @Override
@@ -85,6 +102,44 @@ public class AddProduct extends AppCompatActivity {
         }
     }
 
+    private void init() {
+        name = findViewById(R.id.name_add);
+        description = findViewById(R.id.description_add);
+        price = findViewById(R.id.price_add);
+        category = findViewById(R.id.category_add);
+    }
+
+    private void edit(){
+        getSupportActionBar().setTitle("Editar Producto");
+        name.setText(getIntent().getStringExtra("name"));
+        description.setText(getIntent().getStringExtra("description"));
+        price.setText(getIntent().getStringExtra("price"));
+        // setear category
+        String urlImg = getIntent().getStringExtra("urlImg");
+        imgUri = Uri.parse(urlImg);
+        loadImg(urlImg);
+
+        uid = getIntent().getStringExtra("uid");
+    }
+
+    private void loadImg(String urlImg) {
+        StorageReference str = FirebaseStorage.getInstance().getReference()
+                .child("img")
+                .child(urlImg);
+
+        try {
+            final File localFile = File.createTempFile("images", "jpg");
+            str.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    Glide.with(AddProduct.this).load(localFile).into(img);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void uploadImg(Uri uri) {
         StorageReference str = FirebaseStorage.getInstance().getReference()
                 .child("img")
@@ -97,11 +152,6 @@ public class AddProduct extends AppCompatActivity {
     }
 
     private void saveData() {
-        EditText name = findViewById(R.id.name_add);
-        EditText description = findViewById(R.id.description_add);
-        EditText price = findViewById(R.id.price_add);
-        Spinner category = findViewById(R.id.category_add);
-
         if(!name.getText().toString().equals("") || !String.valueOf(price.getText()).equals("") || !description.getText().toString().equals("")){
             Product p = new Product(
                     String.valueOf(System.currentTimeMillis()),
@@ -111,10 +161,14 @@ public class AddProduct extends AppCompatActivity {
                     description.getText().toString(),
                     category.getSelectedItem().toString()
             );
-
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("products").add(p);
-            uploadImg(imgUri);
+
+            if(getIntent().getStringExtra("name") != null) {
+                db.collection("products").document(uid).set(p);
+            } else {
+                db.collection("products").add(p);
+                uploadImg(imgUri);
+            }
             onBackPressed();
         } else {
             Toast.makeText(this, "¡Llene todos los campos!", Toast.LENGTH_SHORT).show();

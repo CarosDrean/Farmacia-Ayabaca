@@ -79,7 +79,7 @@ public class Home extends Fragment {
 
         adapter = new FirestoreRecyclerAdapter<Product, ProductHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final ProductHolder holder, int position, @NonNull Product model) {
+            protected void onBindViewHolder(@NonNull final ProductHolder holder, int position, @NonNull final Product model) {
                 holder.name.setText(model.getName());
                 holder.price.setText("" + model.getPrice());
 
@@ -103,6 +103,11 @@ public class Home extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent i = new Intent(getActivity(), DetailProduct.class);
+                        i.putExtra("uid", model.getUid());
+                        i.putExtra("name", model.getName());
+                        i.putExtra("description", model.getDescription());
+                        i.putExtra("price", model.getPrice());
+                        i.putExtra("urlImg", model.getUrlImg());
                         startActivity(i);
                     }
                 });

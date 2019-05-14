@@ -69,11 +69,12 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Catego
             public void onClick(View v) {
                 Intent i = new Intent(activity, DetailProduct.class);
                 activity.startActivity(i);
-                /*i.putExtra("helado", item.getNombre());
-                i.putExtra("descripcion", item.getDescripcion());
-                i.putExtra("precio", item.getPrecio());
-                i.putExtra("portada", item.getImagen());
-                activity.startActivity(i);*/
+                i.putExtra("uid", item.getUid());
+                i.putExtra("name", item.getName());
+                i.putExtra("description", item.getDescription());
+                i.putExtra("price", item.getPrice());
+                i.putExtra("urlImg", item.getUrlImg());
+                activity.startActivity(i);
             }
         });
 
