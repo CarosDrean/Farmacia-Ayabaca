@@ -4,6 +4,7 @@ package xyz.drean.ayabacafarm.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +18,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.SnapshotParser;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FileDownloadTask;
@@ -74,8 +77,24 @@ public class Home extends Fragment {
                 .limit(50);
 
         FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
-                .setQuery(query, Product.class)
+                .setQuery(query, new SnapshotParser<Product>() {
+                    @NonNull
+                    @Override
+                    public Product parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Product p = new Product(
+                                snapshot.getId(),
+                                snapshot.getString("name"),
+                                snapshot.getString("urlImg"),
+                                snapshot.getDouble("price"),
+                                snapshot.getString("description"),
+                                snapshot.getString("category")
+                        );
+                        return p;
+                    }
+                })
                 .build();
+
+
 
         adapter = new FirestoreRecyclerAdapter<Product, ProductHolder>(options) {
             @Override
@@ -106,9 +125,11 @@ public class Home extends Fragment {
                         i.putExtra("uid", model.getUid());
                         i.putExtra("name", model.getName());
                         i.putExtra("description", model.getDescription());
+                        i.putExtra("category", model.getCategory());
                         i.putExtra("price", model.getPrice());
                         i.putExtra("urlImg", model.getUrlImg());
-                        startActivity(i);
+                        startActivity(i, ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                getActivity(), v, getActivity().getString(R.string.trancicionFoto)).toBundle());
                     }
                 });
             }

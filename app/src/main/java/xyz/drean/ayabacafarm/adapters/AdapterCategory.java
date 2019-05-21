@@ -3,6 +3,7 @@ package xyz.drean.ayabacafarm.adapters;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,13 +69,14 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Catego
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(activity, DetailProduct.class);
-                activity.startActivity(i);
                 i.putExtra("uid", item.getUid());
                 i.putExtra("name", item.getName());
                 i.putExtra("description", item.getDescription());
+                i.putExtra("category", item.getCategory());
                 i.putExtra("price", item.getPrice());
                 i.putExtra("urlImg", item.getUrlImg());
-                activity.startActivity(i);
+                activity.startActivity(i, ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        activity, v, activity.getString(R.string.trancicionFoto)).toBundle());
             }
         });
 

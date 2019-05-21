@@ -1,5 +1,7 @@
 package xyz.drean.ayabacafarm;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -7,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -74,6 +77,20 @@ public class MainActivity extends AppCompatActivity
         signInAnonymously();
     }
 
+    private void abaut(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Acerca de")
+                .setMessage("Somos una nueva empresa de la ciudad de Ica, que les ofrece un servicio de calidad unica.");
+        builder.setPositiveButton("Listo", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        Dialog dialog = builder.create();
+        dialog.show();
+    }
+
     private void signInAnonymously() {
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -115,6 +132,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            abaut();
             return true;
         }
 

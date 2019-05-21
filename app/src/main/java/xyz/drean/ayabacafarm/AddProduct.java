@@ -113,8 +113,8 @@ public class AddProduct extends AppCompatActivity {
         getSupportActionBar().setTitle("Editar Producto");
         name.setText(getIntent().getStringExtra("name"));
         description.setText(getIntent().getStringExtra("description"));
-        price.setText(getIntent().getStringExtra("price"));
-        // setear category
+        price.setText("" + getIntent().getDoubleExtra("price", 0.0));
+        category.setSelection(getIndexSpinner(category, getIntent().getStringExtra("category")));
         String urlImg = getIntent().getStringExtra("urlImg");
         imgUri = Uri.parse(urlImg);
         loadImg(urlImg);
@@ -151,6 +151,16 @@ public class AddProduct extends AppCompatActivity {
         });
     }
 
+    private static int getIndexSpinner(Spinner spinner, String label) {
+        int position = 0;
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(label)) {
+                position = i;
+            }
+        }
+        return position;
+    }
+
     private void saveData() {
         if(!name.getText().toString().equals("") || !String.valueOf(price.getText()).equals("") || !description.getText().toString().equals("")){
             Product p = new Product(
@@ -165,6 +175,7 @@ public class AddProduct extends AppCompatActivity {
 
             if(getIntent().getStringExtra("name") != null) {
                 db.collection("products").document(uid).set(p);
+                Toast.makeText(this, "¡Producto actualizado!", Toast.LENGTH_SHORT).show();
             } else {
                 db.collection("products").add(p);
                 uploadImg(imgUri);
