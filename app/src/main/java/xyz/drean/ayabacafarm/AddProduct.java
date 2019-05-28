@@ -1,5 +1,6 @@
 package xyz.drean.ayabacafarm;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -8,16 +9,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -32,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import xyz.drean.ayabacafarm.abstraction.General;
 import xyz.drean.ayabacafarm.pojo.Product;
 
 public class AddProduct extends AppCompatActivity {
@@ -47,6 +47,8 @@ public class AddProduct extends AppCompatActivity {
 
     private String uid;
 
+    FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,25 +63,20 @@ public class AddProduct extends AppCompatActivity {
                 saveData();
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ActionBar actionBar = getSupportActionBar();
-        final Drawable menuIcon = getResources().getDrawable(R.drawable.ic_baseline_close_24px);
-        menuIcon.setColorFilter(getResources().getColor(R.color.blanco), PorterDuff.Mode.SRC_ATOP);
-        actionBar.setHomeAsUpIndicator(menuIcon);
-
+        iconActionBar();
         init();
 
         img = findViewById(R.id.img_add);
         img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openGalery();
+                openGallery();
             }
         });
 
         if(getIntent().getStringExtra("name") != null) {
-            edit();
+            initEdit();
         }
     }
 
@@ -102,14 +99,24 @@ public class AddProduct extends AppCompatActivity {
         }
     }
 
+    private void iconActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        final Drawable menuIcon = getResources().getDrawable(R.drawable.ic_baseline_close_24px);
+        menuIcon.setColorFilter(getResources().getColor(R.color.blanco), PorterDuff.Mode.SRC_ATOP);
+        actionBar.setHomeAsUpIndicator(menuIcon);
+    }
+
     private void init() {
         name = findViewById(R.id.name_add);
         description = findViewById(R.id.description_add);
         price = findViewById(R.id.price_add);
         category = findViewById(R.id.category_add);
+
+        db = FirebaseFirestore.getInstance();
     }
 
-    private void edit(){
+    private void initEdit(){
         getSupportActionBar().setTitle("Editar Producto");
         name.setText(getIntent().getStringExtra("name"));
         description.setText(getIntent().getStringExtra("description"));
@@ -117,30 +124,15 @@ public class AddProduct extends AppCompatActivity {
         category.setSelection(getIndexSpinner(category, getIntent().getStringExtra("category")));
         String urlImg = getIntent().getStringExtra("urlImg");
         imgUri = Uri.parse(urlImg);
-        loadImg(urlImg);
+
+        General general = new General();
+        general.loadImage(urlImg, img, this);
 
         uid = getIntent().getStringExtra("uid");
     }
 
-    private void loadImg(String urlImg) {
-        StorageReference str = FirebaseStorage.getInstance().getReference()
-                .child("img")
-                .child(urlImg);
-
-        try {
-            final File localFile = File.createTempFile("images", "jpg");
-            str.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    Glide.with(AddProduct.this).load(localFile).into(img);
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void uploadImg(Uri uri) {
+        Toast.makeText(this, "Guardando datos...", Toast.LENGTH_SHORT).show();
         StorageReference str = FirebaseStorage.getInstance().getReference()
                 .child("img")
                 .child(uri.getLastPathSegment());
@@ -171,7 +163,7 @@ public class AddProduct extends AppCompatActivity {
                     description.getText().toString(),
                     category.getSelectedItem().toString()
             );
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
             if(getIntent().getStringExtra("name") != null) {
                 db.collection("products").document(uid).set(p);
@@ -184,12 +176,15 @@ public class AddProduct extends AppCompatActivity {
         } else {
             Toast.makeText(this, "¡Llene todos los campos!", Toast.LENGTH_SHORT).show();
         }
-
     }
 
-    private void openGalery(){
-        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        i.setType("image/*");
-        startActivityForResult(Intent.createChooser(i, "Seleccionar Imagen"), SELECT_PICTURE);
+    private void openGallery(){
+        try {
+            Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            i.setType("image/*");
+            startActivityForResult(Intent.createChooser(i, "Seleccionar Imagen"), SELECT_PICTURE);
+        } catch (Error e) {
+            Toast.makeText(this, "Error al abrir la galeria.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

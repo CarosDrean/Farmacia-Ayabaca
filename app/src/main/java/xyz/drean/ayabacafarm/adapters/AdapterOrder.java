@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,19 +17,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import xyz.drean.ayabacafarm.R;
+import xyz.drean.ayabacafarm.abstraction.General;
 import xyz.drean.ayabacafarm.pojo.Order;
 
 public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHolder> {
@@ -60,22 +53,10 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
         holder.adders.setText(item.getAddress());
         holder.product.setText(item.getNameProduct());
 
-        StorageReference str = FirebaseStorage.getInstance().getReference()
-                .child("img")
-                .child(item.getUrlImg());
+        General general = new General();
+        general.loadImage(item.getUrlImg(), holder.img, activity);
 
-        try {
-            final File localFile = File.createTempFile("images", "jpg");
-            str.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    Glide.with(activity).load(localFile).into(holder.img);
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        // solucionar como pedir permisos correctamente
         holder.call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,16 +90,16 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
         return orders.size();
     }
 
-    public static class OrderViewHolder extends RecyclerView.ViewHolder{
+    static class OrderViewHolder extends RecyclerView.ViewHolder{
 
-        CircleImageView img;
-        TextView name;
-        TextView product;
-        TextView adders;
-        ImageView call;
-        public RelativeLayout content;
+        private CircleImageView img;
+        private TextView name;
+        private TextView product;
+        private TextView adders;
+        private ImageView call;
+        RelativeLayout content;
 
-        public OrderViewHolder(View itemView) {
+        OrderViewHolder(View itemView) {
             super(itemView);
             img = itemView.findViewById(R.id.img_order);
             name = itemView.findViewById(R.id.name_order);

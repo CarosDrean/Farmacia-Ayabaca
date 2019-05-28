@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setItemIconTintList(null);
 
-        datosCabecera(navigationView.getHeaderView(0));
+        dataHome(navigationView.getHeaderView(0));
 
         if(navigationView != null){
             onNavigationItemSelected(navigationView.getMenu().getItem(0));
@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
         navigationView.setNavigationItemSelectedListener(this);
 
         FloatingActionButton fab = findViewById(R.id.fab_product);
@@ -77,11 +78,11 @@ public class MainActivity extends AppCompatActivity
         signInAnonymously();
     }
 
-    private void abaut(){
+    private void simpleAlert(String title, String message, String positiveButton) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Acerca de")
-                .setMessage("Somos una nueva empresa de la ciudad de Ica, que les ofrece un servicio de calidad unica.");
-        builder.setPositiveButton("Listo", new DialogInterface.OnClickListener() {
+        builder.setTitle(title)
+                .setMessage(message);
+        builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -125,14 +126,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            abaut();
+            simpleAlert(
+                    getResources().getString(R.string.action_abaut),
+                    getResources().getString(R.string.text_abaut),
+                    getResources().getString(R.string.list)
+            );
             return true;
         }
 
@@ -171,7 +172,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void datosCabecera(View v){
+    private void dataHome(View v){
         ImageView fondo = v.findViewById(R.id.fondo_cabecera);
         Glide.with(this).load(getDrawable(R.drawable.logo)).into(fondo);
     }

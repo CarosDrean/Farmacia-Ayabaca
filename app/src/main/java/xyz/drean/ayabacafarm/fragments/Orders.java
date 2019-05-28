@@ -31,11 +31,11 @@ import xyz.drean.ayabacafarm.pojo.Product;
  */
 public class Orders extends Fragment implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener{
 
-    ArrayList<Order> orders;
+    private ArrayList<Order> orders;
     private FirebaseFirestore db;
-    LinearLayoutManager llm;
-    RecyclerView orderList;
-    AdapterOrder adapter;
+    private LinearLayoutManager llm;
+    private RecyclerView orderList;
+    private AdapterOrder adapter;
 
     public Orders() {
         // Required empty public constructor
@@ -47,17 +47,20 @@ public class Orders extends Fragment implements RecyclerItemTouchHelper.Recycler
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_orders, container, false);
-        orderList = v.findViewById(R.id.recycler_order);
-        orders = new ArrayList<>();
-        db = FirebaseFirestore.getInstance();
-        init();
+
+        init(v);
+
         RecyclerItemTouchHelper itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(orderList);
+
         getData();
         return v;
     }
 
-    private void init(){
+    private void init(View v){
+        orderList = v.findViewById(R.id.recycler_order);
+        orders = new ArrayList<>();
+        db = FirebaseFirestore.getInstance();
         llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         orderList.setLayoutManager(llm);
@@ -74,6 +77,7 @@ public class Orders extends Fragment implements RecyclerItemTouchHelper.Recycler
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException e) {
+                        assert value != null;
                         for(QueryDocumentSnapshot doc: value) {
                             Order o = doc.toObject(Order.class);
                             o.setUid(doc.getId());

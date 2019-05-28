@@ -9,8 +9,6 @@
     <ImageView
         android:id="@+id/img_product"
         android:layout_width="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/holder"
         android:transitionName="@string/trancicionFoto"
         android:layout_height="192dp" />
 

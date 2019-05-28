@@ -1,6 +1,7 @@
 package xyz.drean.ayabacafarm.fragments;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -81,14 +82,9 @@ public class Home extends Fragment {
                     @NonNull
                     @Override
                     public Product parseSnapshot(@NonNull DocumentSnapshot snapshot) {
-                        Product p = new Product(
-                                snapshot.getId(),
-                                snapshot.getString("name"),
-                                snapshot.getString("urlImg"),
-                                snapshot.getDouble("price"),
-                                snapshot.getString("description"),
-                                snapshot.getString("category")
-                        );
+                        Product p = snapshot.toObject(Product.class);
+                        assert p != null;
+                        p.setUid(snapshot.getId());
                         return p;
                     }
                 })
@@ -100,36 +96,17 @@ public class Home extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull final ProductHolder holder, int position, @NonNull final Product model) {
                 holder.name.setText(model.getName());
-                holder.price.setText("" + model.getPrice());
+                holder.price.setText(String.valueOf(model.getPrice()));
 
-                StorageReference str = FirebaseStorage.getInstance().getReference()
-                        .child("img")
-                        .child(model.getUrlImg());
+                final Activity activity = getActivity();
+                assert activity != null;
 
-                try {
-                    final File localFile = File.createTempFile("images", "jpg");
-                    str.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            Glide.with(getActivity()).load(localFile).into(holder.background);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                loadImage(model.getUrlImg(), holder.background, activity);
 
                 holder.background.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent i = new Intent(getActivity(), DetailProduct.class);
-                        i.putExtra("uid", model.getUid());
-                        i.putExtra("name", model.getName());
-                        i.putExtra("description", model.getDescription());
-                        i.putExtra("category", model.getCategory());
-                        i.putExtra("price", model.getPrice());
-                        i.putExtra("urlImg", model.getUrlImg());
-                        startActivity(i, ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                getActivity(), v, getActivity().getString(R.string.trancicionFoto)).toBundle());
+                        goDetail(model, activity, v);
                     }
                 });
             }
@@ -147,13 +124,47 @@ public class Home extends Fragment {
         categoryList.setAdapter(adapter);
     }
 
+    private void goDetail(Product model, Activity activity, View v) {
+        Intent i = new Intent(activity, DetailProduct.class);
+        i.putExtra("uid", model.getUid());
+        i.putExtra("name", model.getName());
+        i.putExtra("description", model.getDescription());
+        i.putExtra("category", model.getCategory());
+        i.putExtra("price", model.getPrice());
+        i.putExtra("urlImg", model.getUrlImg());
+        startActivity(i, ActivityOptionsCompat.makeSceneTransitionAnimation(
+                activity, v, activity.getString(R.string.trancicionFoto)).toBundle());
+    }
+
+    private void loadImage(String urlImg, final ImageView imageView, final Activity activity) {
+        StorageReference str = FirebaseStorage.getInstance().getReference()
+                .child("img")
+                .child(urlImg);
+
+        try {
+            final File localFile = File.createTempFile("images", "jpg");
+            str.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    Glide.with(activity)
+                            .load(localFile)
+                            .centerCrop()
+                            .placeholder(R.drawable.holder)
+                            .into(imageView);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public class ProductHolder extends RecyclerView.ViewHolder {
 
         TextView name;
         TextView price;
         ImageView background;
 
-        public ProductHolder(View itemView) {
+        ProductHolder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.name_home);
             price = itemView.findViewById(R.id.price_home);

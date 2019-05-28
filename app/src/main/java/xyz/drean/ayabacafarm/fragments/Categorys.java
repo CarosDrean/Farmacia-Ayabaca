@@ -103,15 +103,10 @@ public class Categorys extends Fragment {
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException e) {
+                        assert value != null;
                         for(QueryDocumentSnapshot doc: value) {
-                            Product p = new Product(
-                                    doc.getId(),
-                                    doc.getString("name"),
-                                    doc.getString("urlImg"),
-                                    doc.getDouble("price"),
-                                    doc.getString("description"),
-                                    doc.getString("category")
-                            );
+                            Product p = doc.toObject(Product.class);
+                            p.setUid(doc.getId());
                             products.add(p);
                             initAdapter();
                         }

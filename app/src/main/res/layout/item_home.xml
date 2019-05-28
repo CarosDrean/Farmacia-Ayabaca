@@ -10,9 +10,7 @@
         android:id="@+id/background_home"
         android:layout_width="match_parent"
         android:layout_height="@dimen/altura_miniatura_comida"
-        android:src="@drawable/holder"
-        android:transitionName="@string/trancicionFoto"
-        android:scaleType="centerCrop" />
+        android:transitionName="@string/trancicionFoto" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -6,8 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.chip.Chip;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -45,22 +43,15 @@ public class DetailProduct extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        init();
+        init(); // inicializa la variable name
 
         getSupportActionBar().setTitle(name);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(DetailProduct.this, AddProduct.class);
-                i.putExtra("uid", uid);
-                i.putExtra("name", name);
-                i.putExtra("description", description);
-                i.putExtra("category", category);
-                i.putExtra("price", price);
-                i.putExtra("urlImg", urlImg);
-                startActivity(i);
+                edit();
             }
         });
     }
@@ -79,6 +70,17 @@ public class DetailProduct extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void edit(){
+        Intent i = new Intent(DetailProduct.this, AddProduct.class);
+        i.putExtra("uid", uid);
+        i.putExtra("name", name);
+        i.putExtra("description", description);
+        i.putExtra("category", category);
+        i.putExtra("price", price);
+        i.putExtra("urlImg", urlImg);
+        startActivity(i);
     }
 
     private void deleteItem() {
