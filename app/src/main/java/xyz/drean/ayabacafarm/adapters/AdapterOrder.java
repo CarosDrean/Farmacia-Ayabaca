@@ -89,6 +89,7 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
         }
     }
 
+    // error al eliminar
     public void removeItem(int position){
         String uid = orders.get(position).getUid();
         orders.remove(position);
