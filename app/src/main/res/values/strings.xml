@@ -36,4 +36,21 @@
     <string name="action_delete">Eliminar</string>
     <string name="text_abaut">Somos una nueva empresa de la ciudad de Ica, que les ofrece un servicio de calidad unica.</string>
     <string name="list">Listo</string>
+    <string name="order_delete">¡Pedido eliminado!</string>
+    <string name="edit_product">Editar Producto</string>
+    <string name="save_product">Guardando datos...</string>
+    <string name="updated_product">¡Producto actualizado!</string>
+    <string name="fill_fields">¡Llene todos los campos!</string>
+    <string name="select_img">Seleccionar Imagen</string>
+    <string name="error_gallery">Error al abrir la galeria.</string>
+    <string name="permission_denied">Error: permiso denegado.</string>
+    <string name="name">Nombre</string>
+    <string name="description">Descripcion</string>
+    <string name="price">Precio</string>
+    <string name="placeholder_description">Esta es la descripcion del prodcuto seleccionado por lo tanto...</string>
+    <string name="title_ui">Titulo</string>
+    <string name="category_hint">Category</string>
+    <string name="price_ui">S/. 15.2</string>
+    <string name="img">Imagen</string>
+    <string name="logo">logo</string>
 </resources>

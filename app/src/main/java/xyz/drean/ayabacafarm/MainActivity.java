@@ -6,9 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -28,9 +27,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-import xyz.drean.ayabacafarm.fragments.Categorys;
 import xyz.drean.ayabacafarm.fragments.Home;
 import xyz.drean.ayabacafarm.fragments.Orders;
 import xyz.drean.ayabacafarm.fragments.Products;
@@ -55,9 +52,7 @@ public class MainActivity extends AppCompatActivity
 
         dataHome(navigationView.getHeaderView(0));
 
-        if(navigationView != null){
-            onNavigationItemSelected(navigationView.getMenu().getItem(0));
-        }
+        onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -97,9 +92,7 @@ public class MainActivity extends AppCompatActivity
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                        } else {
+                        if (!task.isSuccessful()) {
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -140,9 +133,8 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         Fragment fragment  = null;
         boolean fragmentManager = false;
@@ -162,9 +154,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         if(fragmentManager){
+            ActionBar actionBar = getSupportActionBar();
             getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).commit();
             item.setChecked(true);
-            getSupportActionBar().setTitle(item.getTitle());
+            assert actionBar != null;
+            actionBar.setTitle(item.getTitle());
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

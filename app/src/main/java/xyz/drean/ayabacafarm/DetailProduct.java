@@ -1,11 +1,10 @@
 package xyz.drean.ayabacafarm;
 
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.chip.Chip;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -15,15 +14,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.io.File;
-import java.io.IOException;
+import xyz.drean.ayabacafarm.abstraction.General;
 
 public class DetailProduct extends AppCompatActivity {
 
@@ -38,10 +32,12 @@ public class DetailProduct extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_product);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_detail);
+        Toolbar toolbar = findViewById(R.id.toolbar_detail);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         init(); // inicializa la variable name
 
@@ -118,26 +114,9 @@ public class DetailProduct extends AppCompatActivity {
         name_u.setText(name);
         description_u.setText(description);
         category_u.setText(category);
-        price_u.setText("S/. " + price);
+        price_u.setText(String.format("S/. %s", price));
 
-        loadImg(urlImg, img);
-    }
-
-    private void loadImg(String urlImg, final ImageView img) {
-        StorageReference str = FirebaseStorage.getInstance().getReference()
-                .child("img")
-                .child(urlImg);
-
-        try {
-            final File localFile = File.createTempFile("images", "jpg");
-            str.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    Glide.with(DetailProduct.this).load(localFile).into(img);
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        General general = new General();
+        general.loadImage(urlImg, img, DetailProduct.this);
     }
 }

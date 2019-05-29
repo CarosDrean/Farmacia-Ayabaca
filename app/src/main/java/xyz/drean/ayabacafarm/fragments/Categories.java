@@ -2,13 +2,13 @@ package xyz.drean.ayabacafarm.fragments;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,30 +27,29 @@ import xyz.drean.ayabacafarm.pojo.Product;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Categorys extends Fragment {
+public class Categories extends Fragment {
 
     private FirebaseFirestore db;
-    //private FirestoreRecyclerAdapter adapter;
     GridLayoutManager gridLayoutManager;
     RecyclerView categoryList;
     ArrayList<Product> products;
     AdapterCategory adapter;
 
-    public Categorys() {
+    public Categories() {
         // Required empty public constructor
     }
 
-    public static Categorys nuevaInstancia(int indiceSeccion) {
-        Categorys fragment = new Categorys();
+    public static Categories newInstance(int indicesSection) {
+        Categories fragment = new Categories();
         Bundle args = new Bundle();
-        args.putInt("key", indiceSeccion);
+        args.putInt("key", indicesSection);
         fragment.setArguments(args);
         return fragment;
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_categorys, container, false);
         categoryList = v.findViewById(R.id.reciclador);
@@ -78,9 +77,10 @@ public class Categorys extends Fragment {
     }
 
     private void loadData() {
-        int indiceSeccion = getArguments().getInt("key");
+        assert getArguments() != null;
+        int indicesSection = getArguments().getInt("key");
 
-        switch (indiceSeccion) {
+        switch (indicesSection) {
             case 0:
                 getData("Pastillas");
                 init();

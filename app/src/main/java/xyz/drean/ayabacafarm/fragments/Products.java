@@ -1,8 +1,9 @@
 package xyz.drean.ayabacafarm.fragments;
 
 
-import android.graphics.Color;
+import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -34,7 +35,7 @@ public class Products extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_products, container, false);
@@ -54,48 +55,50 @@ public class Products extends Fragment {
     }
 
     private void insertTabs(ViewGroup container){
+        Activity activity = getActivity();
         View padre = (View) container.getParent();
         appBarLayout = padre.findViewById(R.id.appbar);
-        tabLayout = new TabLayout(getActivity());
-        tabLayout.setTabTextColors(Color.parseColor("#FFCCBC"), Color.parseColor("#FFFFFF"));
+        assert activity != null;
+        tabLayout = new TabLayout(activity);
+        tabLayout.setTabTextColors(getResources().getColor(R.color.semi_banco), getResources().getColor(R.color.blanco));
         appBarLayout.addView(tabLayout);
     }
 
     private void populateViewPager(ViewPager viewPager){
-        AdaptadorSecciones adapter = new AdaptadorSecciones(getFragmentManager());
-        adapter.addFragment(Categorys.nuevaInstancia(0), getString(R.string.pastillas));
-        adapter.addFragment(Categorys.nuevaInstancia(1), getString(R.string.jarabes));
-        adapter.addFragment(Categorys.nuevaInstancia(2), getString(R.string.injectables));
+        AdapterSections adapter = new AdapterSections(getFragmentManager());
+        adapter.addFragment(Categories.newInstance(0), getString(R.string.pastillas));
+        adapter.addFragment(Categories.newInstance(1), getString(R.string.jarabes));
+        adapter.addFragment(Categories.newInstance(2), getString(R.string.injectables));
         viewPager.setAdapter(adapter);
     }
 
-    class AdaptadorSecciones extends FragmentStatePagerAdapter {
-        List<Fragment> fragmentos = new ArrayList();
-        List<String> titulos = new  ArrayList();
+    class AdapterSections extends FragmentStatePagerAdapter {
+        List<Fragment> fragments = new ArrayList();
+        List<String> titles = new ArrayList();
 
-        public AdaptadorSecciones(FragmentManager fm) {
+        AdapterSections(FragmentManager fm) {
             super(fm);
         }
 
-        public void addFragment(Fragment fragment, String title){
-            fragmentos.add(fragment);
-            titulos.add(title);
+        void addFragment(Fragment fragment, String title){
+            fragments.add(fragment);
+            titles.add(title);
         }
 
         @Override
         public Fragment getItem(int i) {
-            return fragmentos.get(i);
+            return fragments.get(i);
         }
 
         @Override
         public int getCount() {
-            return fragmentos.size();
+            return fragments.size();
         }
 
         @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            return titulos.get(position);
+            return titles.get(position);
         }
     }
 

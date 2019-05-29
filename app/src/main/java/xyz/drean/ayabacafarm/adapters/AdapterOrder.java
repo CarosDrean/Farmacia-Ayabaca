@@ -1,13 +1,9 @@
 package xyz.drean.ayabacafarm.adapters;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,10 +27,8 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
     private ArrayList<Order> orders;
     private Activity activity;
 
-    private int CODE_PERMISSION_CALL = 0;
-
-    public AdapterOrder(ArrayList<Order> productos, Activity activity) {
-        this.orders = productos;
+    public AdapterOrder(ArrayList<Order> products, Activity activity) {
+        this.orders = products;
         this.activity = activity;
     }
 
@@ -56,24 +50,9 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
         General general = new General();
         general.loadImage(item.getUrlImg(), holder.img, activity);
 
-        // solucionar como pedir permisos correctamente
         holder.call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (ContextCompat.checkSelfPermission(activity,
-                        Manifest.permission.CALL_PHONE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                            Manifest.permission.CALL_PHONE)) {
-                        //call(item.getCel());
-                    } else {
-                        ActivityCompat.requestPermissions(activity,
-                                new String[]{Manifest.permission.CALL_PHONE},
-                                CODE_PERMISSION_CALL);
-                        //call(item.getCel());
-                    }
-                }
                 call(item.getCel());
             }
         });
@@ -120,7 +99,7 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
                 .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(activity, "¡Pedido eliminado!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, activity.getResources().getText(R.string.order_delete), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -14,26 +14,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import xyz.drean.ayabacafarm.DetailProduct;
 import xyz.drean.ayabacafarm.R;
+import xyz.drean.ayabacafarm.abstraction.General;
 import xyz.drean.ayabacafarm.pojo.Product;
 
 /**
@@ -53,7 +45,7 @@ public class Home extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
@@ -101,7 +93,8 @@ public class Home extends Fragment {
                 final Activity activity = getActivity();
                 assert activity != null;
 
-                loadImage(model.getUrlImg(), holder.background, activity);
+                General general = new General();
+                general.loadImage(model.getUrlImg(), holder.background, activity);
 
                 holder.background.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -136,33 +129,11 @@ public class Home extends Fragment {
                 activity, v, activity.getString(R.string.trancicionFoto)).toBundle());
     }
 
-    private void loadImage(String urlImg, final ImageView imageView, final Activity activity) {
-        StorageReference str = FirebaseStorage.getInstance().getReference()
-                .child("img")
-                .child(urlImg);
-
-        try {
-            final File localFile = File.createTempFile("images", "jpg");
-            str.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    Glide.with(activity)
-                            .load(localFile)
-                            .centerCrop()
-                            .placeholder(R.drawable.holder)
-                            .into(imageView);
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public class ProductHolder extends RecyclerView.ViewHolder {
 
-        TextView name;
-        TextView price;
-        ImageView background;
+        private TextView name;
+        private TextView price;
+        private ImageView background;
 
         ProductHolder(View itemView) {
             super(itemView);
