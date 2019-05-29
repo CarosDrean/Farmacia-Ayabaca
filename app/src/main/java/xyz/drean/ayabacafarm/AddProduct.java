@@ -171,7 +171,7 @@ public class AddProduct extends AppCompatActivity {
                 db.collection("products").add(p);
                 uploadImg(imgUri);
             }
-            onBackPressed();
+            finish();
         } else {
             Toast.makeText(this, getResources().getString(R.string.fill_fields), Toast.LENGTH_SHORT).show();
         }

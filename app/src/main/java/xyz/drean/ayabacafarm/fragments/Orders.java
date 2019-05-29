@@ -15,28 +15,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.EventListener;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-
-import javax.annotation.Nullable;
+import com.google.firebase.firestore.Query;
 
 import xyz.drean.ayabacafarm.R;
 import xyz.drean.ayabacafarm.adapters.AdapterOrder;
-import xyz.drean.ayabacafarm.adapters.RecyclerItemTouchHelper;
 import xyz.drean.ayabacafarm.pojo.Order;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Orders extends Fragment implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener{
+public class Orders extends Fragment {
 
-    private ArrayList<Order> orders;
     private FirebaseFirestore db;
+    private CollectionReference collOrders;
     private RecyclerView orderList;
     private AdapterOrder adapter;
 
@@ -55,10 +49,6 @@ public class Orders extends Fragment implements RecyclerItemTouchHelper.Recycler
         View v = inflater.inflate(R.layout.fragment_orders, container, false);
 
         init(v);
-
-        RecyclerItemTouchHelper itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
-        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(orderList);
-
         accessPermission(getActivity());
 
         getData();
@@ -86,38 +76,48 @@ public class Orders extends Fragment implements RecyclerItemTouchHelper.Recycler
 
     private void init(View v){
         orderList = v.findViewById(R.id.recycler_order);
-        orders = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
+        collOrders = db.collection("orders");
+
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         orderList.setLayoutManager(llm);
     }
 
-    private void initAdapter() {
-        adapter = new AdapterOrder(orders, getActivity());
-        orderList.setAdapter(adapter);
-    }
-
     private void getData() {
-        orders.clear();
-        db.collection("orders")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException e) {
-                        assert value != null;
-                        for(QueryDocumentSnapshot doc: value) {
-                            Order o = doc.toObject(Order.class);
-                            o.setUid(doc.getId());
-                            orders.add(o);
-                            initAdapter();
-                        }
-                    }
-                });
+        final Activity activity = getActivity();
+        assert activity != null;
+        Query query = collOrders;
+
+        FirestoreRecyclerOptions<Order> options = new FirestoreRecyclerOptions.Builder<Order>()
+                .setQuery(query, Order.class)
+                .build();
+
+        adapter = new AdapterOrder(options, getActivity());
+        orderList.setAdapter(adapter);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                adapter.removeItem(viewHolder.getAdapterPosition());
+            }
+        }).attachToRecyclerView(orderList);
     }
 
     @Override
-    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
-        adapter.removeItem(viewHolder.getAdapterPosition());
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
 }

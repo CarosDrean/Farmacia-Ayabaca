@@ -13,50 +13,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import java.util.ArrayList;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import xyz.drean.ayabacafarm.R;
 import xyz.drean.ayabacafarm.abstraction.General;
 import xyz.drean.ayabacafarm.pojo.Order;
 
-public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHolder> {
+public class AdapterOrder extends FirestoreRecyclerAdapter<Order, AdapterOrder.OrderHolder> {
 
-    private ArrayList<Order> orders;
     private Activity activity;
 
-    public AdapterOrder(ArrayList<Order> products, Activity activity) {
-        this.orders = products;
+    public AdapterOrder(@NonNull FirestoreRecyclerOptions<Order> options, Activity activity) {
+        super(options);
         this.activity = activity;
-    }
-
-    @NonNull
-    @Override
-    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
-        return new AdapterOrder.OrderViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull final OrderViewHolder holder, int position) {
-        final Order item = orders.get(position);
-
-        holder.name.setText(item.getNameClient());
-        holder.adders.setText(item.getAddress());
-        holder.product.setText(item.getNameProduct());
-
-        General general = new General();
-        general.loadImage(item.getUrlImg(), holder.img, activity);
-
-        holder.call.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                call(item.getCel());
-            }
-        });
-
     }
 
     private void call(String number){
@@ -65,11 +36,30 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
     }
 
     @Override
-    public int getItemCount() {
-        return orders.size();
+    protected void onBindViewHolder(@NonNull OrderHolder holder, int position, @NonNull final Order model) {
+        holder.name.setText(model.getNameClient());
+        holder.adders.setText(model.getAddress());
+        holder.product.setText(model.getNameProduct());
+
+        General general = new General();
+        general.loadImage(model.getUrlImg(), holder.img, activity);
+
+        holder.call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                call(model.getCel());
+            }
+        });
     }
 
-    static class OrderViewHolder extends RecyclerView.ViewHolder{
+    @NonNull
+    @Override
+    public OrderHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_order, viewGroup, false);
+        return new AdapterOrder.OrderHolder(v);
+    }
+
+    class OrderHolder extends RecyclerView.ViewHolder{
 
         private CircleImageView img;
         private TextView name;
@@ -78,7 +68,7 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
         private ImageView call;
         RelativeLayout content;
 
-        OrderViewHolder(View itemView) {
+        OrderHolder(View itemView) {
             super(itemView);
             img = itemView.findViewById(R.id.img_order);
             name = itemView.findViewById(R.id.name_order);
@@ -89,19 +79,8 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
         }
     }
 
-    // error al eliminar
     public void removeItem(int position){
-        String uid = orders.get(position).getUid();
-        orders.remove(position);
-        notifyItemRemoved(position);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("orders").document(uid)
-                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(activity, activity.getResources().getText(R.string.order_delete), Toast.LENGTH_SHORT).show();
-            }
-        });
+        getSnapshots().getSnapshot(position).getReference().delete();
+        Toast.makeText(activity, activity.getResources().getString(R.string.order_delete), Toast.LENGTH_SHORT).show();
     }
 }
