@@ -1,8 +1,6 @@
 package xyz.drean.ayabacafarm;
 
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,13 +16,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
 import de.hdodenhof.circleimageview.CircleImageView;
+import xyz.drean.ayabacafarm.abstraction.DataBase;
 import xyz.drean.ayabacafarm.abstraction.General;
 import xyz.drean.ayabacafarm.pojo.Product;
 
@@ -40,8 +33,7 @@ public class AddProduct extends AppCompatActivity {
     private Spinner category;
 
     private String uid;
-
-    FirebaseFirestore db;
+    private DataBase dataBase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +52,7 @@ public class AddProduct extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
-        iconActionBar(actionBar);
+        General.iconCloseActionBar(actionBar, this);
         init();
 
         img = findViewById(R.id.img_add);
@@ -96,21 +88,13 @@ public class AddProduct extends AppCompatActivity {
         }
     }
 
-    private void iconActionBar(ActionBar actionBar) {
-        assert actionBar != null;
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        final Drawable menuIcon = getResources().getDrawable(R.drawable.ic_baseline_close_24px);
-        menuIcon.setColorFilter(getResources().getColor(R.color.blanco), PorterDuff.Mode.SRC_ATOP);
-        actionBar.setHomeAsUpIndicator(menuIcon);
-    }
-
     private void init() {
         name = findViewById(R.id.name_add);
         description = findViewById(R.id.description_add);
         price = findViewById(R.id.price_add);
         category = findViewById(R.id.category_add);
 
-        db = FirebaseFirestore.getInstance();
+        dataBase = new DataBase(this);
     }
 
     private void initEdit(ActionBar actionBar){
@@ -118,38 +102,13 @@ public class AddProduct extends AppCompatActivity {
         name.setText(getIntent().getStringExtra("name"));
         description.setText(getIntent().getStringExtra("description"));
         price.setText(String.valueOf(getIntent().getDoubleExtra("price", 0.0)));
-        category.setSelection(getIndexSpinner(category, getIntent().getStringExtra("category")));
+        category.setSelection(General.getIndexSpinner(category, getIntent().getStringExtra("category")));
         String urlImg = getIntent().getStringExtra("urlImg");
         imgUri = Uri.parse(urlImg);
 
-        General general = new General();
-        general.loadImage(urlImg, img, this);
+        General.loadImage(urlImg, img, this);
 
         uid = getIntent().getStringExtra("uid");
-    }
-
-    private void uploadImg(Uri uri) {
-        String nameImg = uri.getLastPathSegment();
-        Toast.makeText(this, getResources().getString(R.string.save_product), Toast.LENGTH_SHORT).show();
-        assert nameImg != null;
-        StorageReference str = FirebaseStorage.getInstance().getReference()
-                .child("img")
-                .child(nameImg);
-        str.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-            }
-        });
-    }
-
-    private static int getIndexSpinner(Spinner spinner, String label) {
-        int position = 0;
-        for (int i = 0; i < spinner.getCount(); i++) {
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(label)) {
-                position = i;
-            }
-        }
-        return position;
     }
 
     private void saveData() {
@@ -163,13 +122,13 @@ public class AddProduct extends AppCompatActivity {
                     category.getSelectedItem().toString()
             );
 
+            final String collection = "products";
 
             if(getIntent().getStringExtra("name") != null) {
-                db.collection("products").document(uid).set(p);
-                Toast.makeText(this, getResources().getString(R.string.updated_product), Toast.LENGTH_SHORT).show();
+                dataBase.addItem(p, uid, collection, getResources().getString(R.string.updated_product));
             } else {
-                db.collection("products").add(p);
-                uploadImg(imgUri);
+                dataBase.uploadImg(imgUri);
+                dataBase.addItem(p, p.getUid(), collection, getResources().getString(R.string.save_product));
             }
             finish();
         } else {

@@ -93,8 +93,7 @@ public class Home extends Fragment {
                 final Activity activity = getActivity();
                 assert activity != null;
 
-                General general = new General();
-                general.loadImage(model.getUrlImg(), holder.background, activity);
+                General.loadImage(model.getUrlImg(), holder.background, activity);
 
                 holder.background.setOnClickListener(new View.OnClickListener() {
                     @Override

@@ -12,11 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-
+import xyz.drean.ayabacafarm.abstraction.DataBase;
 import xyz.drean.ayabacafarm.abstraction.General;
 
 public class DetailProduct extends AppCompatActivity {
@@ -27,6 +24,7 @@ public class DetailProduct extends AppCompatActivity {
     private double price;
     private String urlImg;
     private String uid;
+    private DataBase dataBase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +59,7 @@ public class DetailProduct extends AppCompatActivity {
             onBackPressed();
             return true;
         }else if (id == R.id.action_delete) {
-            deleteItem();
+            dataBase.deleteItem("products", uid, "¡Producto eliminado!");
             onBackPressed();
             return true;
         }
@@ -77,17 +75,6 @@ public class DetailProduct extends AppCompatActivity {
         i.putExtra("price", price);
         i.putExtra("urlImg", urlImg);
         startActivity(i);
-    }
-
-    private void deleteItem() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("products").document(uid)
-                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(DetailProduct.this, "¡Producto eliminado!", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
@@ -116,7 +103,7 @@ public class DetailProduct extends AppCompatActivity {
         category_u.setText(category);
         price_u.setText(String.format("S/. %s", price));
 
-        General general = new General();
-        general.loadImage(urlImg, img, DetailProduct.this);
+        General.loadImage(urlImg, img, DetailProduct.this);
+        dataBase = new DataBase(this);
     }
 }

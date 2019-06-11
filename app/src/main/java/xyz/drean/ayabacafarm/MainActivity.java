@@ -1,14 +1,11 @@
 package xyz.drean.ayabacafarm;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -28,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import xyz.drean.ayabacafarm.abstraction.General;
 import xyz.drean.ayabacafarm.fragments.Home;
 import xyz.drean.ayabacafarm.fragments.Orders;
 import xyz.drean.ayabacafarm.fragments.Products;
@@ -73,20 +71,6 @@ public class MainActivity extends AppCompatActivity
         signInAnonymously();
     }
 
-    private void simpleAlert(String title, String message, String positiveButton) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title)
-                .setMessage(message);
-        builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        Dialog dialog = builder.create();
-        dialog.show();
-    }
-
     private void signInAnonymously() {
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -122,10 +106,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            simpleAlert(
+            General.simpleAlert(
                     getResources().getString(R.string.action_abaut),
                     getResources().getString(R.string.text_abaut),
-                    getResources().getString(R.string.list)
+                    getResources().getString(R.string.list),
+                    this
             );
             return true;
         }

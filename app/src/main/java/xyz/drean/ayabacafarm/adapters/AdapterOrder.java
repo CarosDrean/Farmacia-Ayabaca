@@ -40,9 +40,7 @@ public class AdapterOrder extends FirestoreRecyclerAdapter<Order, AdapterOrder.O
         holder.name.setText(model.getNameClient());
         holder.adders.setText(model.getAddress());
         holder.product.setText(model.getNameProduct());
-
-        General general = new General();
-        general.loadImage(model.getUrlImg(), holder.img, activity);
+        General.loadImage(model.getUrlImg(), holder.img, activity);
 
         holder.call.setOnClickListener(new View.OnClickListener() {
             @Override

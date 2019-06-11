@@ -40,9 +40,7 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Catego
         final Product item = products.get(position);
         holder.name.setText(item.getName());
         holder.price.setText(String.valueOf(item.getPrice()));
-
-        General general = new General();
-        general.loadImage(item.getUrlImg(), holder.image, activity);
+        General.loadImage(item.getUrlImg(), holder.image, activity);
 
         holder.image.setOnClickListener(new View.OnClickListener() {
             @Override
