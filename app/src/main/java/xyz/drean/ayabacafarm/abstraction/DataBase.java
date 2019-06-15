@@ -14,7 +14,6 @@ public class DataBase {
 
     private FirebaseFirestore db;
     private Activity activity;
-    private StorageReference str;
 
     public DataBase(Activity activity) {
         this.activity = activity;
@@ -23,7 +22,6 @@ public class DataBase {
 
     private void getInstance() {
         db = FirebaseFirestore.getInstance();
-        str = FirebaseStorage.getInstance().getReference();
     }
 
     public void addItem(Object item, String uid, String collection, String message) {
@@ -44,9 +42,10 @@ public class DataBase {
     public void uploadImg(Uri uri) {
         String nameImg = uri.getLastPathSegment();
         assert nameImg != null;
-        this.str.child("img")
+        StorageReference str = FirebaseStorage.getInstance().getReference()
+                .child("img")
                 .child(nameImg);
-        this.str.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        str.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
             }
